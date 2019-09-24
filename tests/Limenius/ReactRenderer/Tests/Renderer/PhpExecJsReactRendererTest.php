@@ -31,7 +31,7 @@ class PhpExecJsReactRendererTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->getMock();
@@ -46,11 +46,10 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->setPhpExecJs($this->phpExecJs);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testServerBundleNotFound()
     {
+        $this->expectException('\RuntimeException');
+
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/i-dont-exist.js', $this->logger, $this->contextProvider);
         $this->renderer->render('MyApp', 'props', 1, null, false);
     }
@@ -108,11 +107,10 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
     }
 
-    /**
-     * @expectedException \Limenius\ReactRenderer\Exception\EvalJsException
-     */
     public function testFailLoud()
     {
+        $this->expectException('\Limenius\ReactRenderer\Exception\EvalJsException');
+
         $phpExecJs = $this->getMockBuilder(PhpExecJs::class)
             ->getMock();
         $phpExecJs->method('evalJs')
