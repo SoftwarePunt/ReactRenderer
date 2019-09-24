@@ -4,24 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71dcbbf0348600a5447b5feb6ebbd323",
+    "content-hash": "e96d3b96aef88508368106b8e9a18073",
     "packages": [
         {
             "name": "nacmartin/phpexecjs",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nacmartin/phpexecjs.git",
-                "reference": "abb8566e4e5d079e30312e72b33bcf01e09990d9"
+                "url": "https://github.com/SoftwarePunt/phpexecjs.git",
+                "reference": "58e9838e2bfbd4a23d33dd2e3ba0e8c414b44801"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nacmartin/phpexecjs/zipball/abb8566e4e5d079e30312e72b33bcf01e09990d9",
-                "reference": "abb8566e4e5d079e30312e72b33bcf01e09990d9",
+                "url": "https://api.github.com/repos/SoftwarePunt/phpexecjs/zipball/58e9838e2bfbd4a23d33dd2e3ba0e8c414b44801",
+                "reference": "58e9838e2bfbd4a23d33dd2e3ba0e8c414b44801",
                 "shasum": ""
             },
             "require": {
                 "symfony/process": "~2.3|~3.0|^4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.3"
             },
             "type": "library",
             "autoload": {
@@ -29,7 +32,6 @@
                     "Nacmartin\\PhpExecJs": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -40,7 +42,10 @@
                 }
             ],
             "description": "Run JavaScript code from PHP",
-            "time": "2017-11-22T20:17:42+00:00"
+            "support": {
+                "source": "https://github.com/SoftwarePunt/phpexecjs/tree/master"
+            },
+            "time": "2019-09-24T11:04:26+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",

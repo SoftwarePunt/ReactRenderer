@@ -25,17 +25,14 @@ class ReactRenderExtension extends \Twig_Extension
     /**
      * Constructor
      *
-     * @param AbstractReactRenderer    $renderer
-     * @param ContextProviderInterface $contextProvider
-     * @param string                   $defaultRendering
-     * @param boolean                  $trace
-     *
-     * @return ReactRenderExtension
+     * @param AbstractReactRenderer|null    $renderer
+     * @param StaticReactRenderer|null      $staticRenderer
+     * @param ContextProviderInterface      $contextProvider
+     * @param string                        $defaultRendering
+     * @param boolean                       $trace
      */
-    public function __construct(AbstractReactRenderer $renderer = null, StaticReactRenderer $staticRenderer, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
+    public function __construct(?AbstractReactRenderer $renderer, ?StaticReactRenderer $staticRenderer, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
     {
-        $staticRenderer->setRenderer($renderer);
-        $this->staticRenderer = $staticRenderer;
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
         $this->trace = $trace;
@@ -55,6 +52,14 @@ class ReactRenderExtension extends \Twig_Extension
                 $this->renderServerSide = true;
                 break;
         }
+
+        // Initialize static renderer
+        if (!$staticRenderer) {
+            $staticRenderer = new StaticReactRenderer();
+        }
+
+        $staticRenderer->setRenderer($renderer);
+        $this->staticRenderer = $staticRenderer;
     }
 
     /**
