@@ -16,7 +16,7 @@ class StaticReactRenderer extends AbstractReactRenderer
      */
     private $renderer;
 
-    public function __construct(AbstractReactRenderer $renderer, CacheItemPoolInterface $cache = null)
+    public function __construct(?AbstractReactRenderer $renderer, CacheItemPoolInterface $cache = null)
     {
         $this->setRenderer($renderer);
 
@@ -24,7 +24,7 @@ class StaticReactRenderer extends AbstractReactRenderer
             $this->setCache($cache);
     }
 
-    public function setRenderer(AbstractReactRenderer $renderer)
+    public function setRenderer(?AbstractReactRenderer $renderer)
     {
         $this->renderer = $renderer;
     }
@@ -36,6 +36,10 @@ class StaticReactRenderer extends AbstractReactRenderer
 
     public function render($componentName, $propsString, $uuid, $registeredStores = [], $trace)
     {
+        if (!$this->renderer) {
+            return null;
+        }
+
         $cacheItem = null;
 
         if ($this->cache) {
