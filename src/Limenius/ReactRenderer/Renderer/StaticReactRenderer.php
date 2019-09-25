@@ -6,14 +6,22 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class StaticReactRenderer extends AbstractReactRenderer
 {
+    /**
+     * @var CacheItemPoolInterface
+     */
     private $cache;
-    private $cacheKey;
+
+    /**
+     * @var AbstractReactRenderer
+     */
     private $renderer;
 
-    public function setCache(CacheItemPoolInterface $cache, $cacheKey)
+    public function __construct(AbstractReactRenderer $renderer, CacheItemPoolInterface $cache = null)
     {
-        $this->cache = $cache;
-        $this->cacheKey = $cacheKey;
+        $this->setRenderer($renderer);
+
+        if ($cache)
+            $this->setCache($cache);
     }
 
     public function setRenderer(AbstractReactRenderer $renderer)
@@ -21,21 +29,33 @@ class StaticReactRenderer extends AbstractReactRenderer
         $this->renderer = $renderer;
     }
 
-    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
+    public function setCache(CacheItemPoolInterface $cache)
     {
-        if ($this->cache === null) {
-            return $this->renderer->render($componentName, $propsString, $uuid, $registeredStores, $trace);
-        }
+        $this->cache = $cache;
+    }
 
-        $cacheItem = $this->cache->getItem($componentName . '.rendered');
-        if ($cacheItem->isHit()) {
-            return $cacheItem->get();
+    public function render($componentName, $propsString, $uuid, $registeredStores = [], $trace)
+    {
+        $cacheItem = null;
+
+        if ($this->cache) {
+            $propsHash = md5($propsString);
+            $cacheKey = "{$componentName}_{$propsHash}_rendered";
+
+            $cacheItem = $this->cache->getItem($cacheKey);
+
+            if ($cacheItem->isHit()) {
+                return $cacheItem->get();
+            }
         }
 
         $rendered = $this->renderer->render($componentName, $propsString, $uuid, $registeredStores, $trace);
 
-        $cacheItem->set($rendered);
-        $this->cache->save($cacheItem);
+        if ($cacheItem) {
+            $cacheItem->set($rendered);
+            $this->cache->save($cacheItem);
+        }
+
         return $rendered;
     }
 }

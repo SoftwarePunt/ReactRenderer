@@ -11,9 +11,13 @@ use Limenius\ReactRenderer\Renderer\StaticReactRenderer;
  */
 class ReactRenderExtension extends \Twig_Extension
 {
+    const RENDER_SERVER_ONLY = 'server_side';
+    const RENDER_CLIENT_ONLY = 'client_side';
+    const RENDER_CLIENT_AND_SERVER = 'both';
+
     protected $renderServerSide = false;
     protected $renderClientSide = false;
-    protected $registeredStores = array();
+    protected $registeredStores = [];
     protected $needsToSetRailsContext = true;
 
     private $renderer;
@@ -25,40 +29,41 @@ class ReactRenderExtension extends \Twig_Extension
     /**
      * Constructor
      *
-     * @param AbstractReactRenderer|null    $renderer
-     * @param StaticReactRenderer|null      $staticRenderer
-     * @param ContextProviderInterface      $contextProvider
-     * @param string                        $defaultRendering
-     * @param boolean                       $trace
+     * @param AbstractReactRenderer|null $renderer
+     * @param StaticReactRenderer|null $staticRenderer
+     * @param ContextProviderInterface $contextProvider
+     * @param string $defaultRendering
+     * @param boolean $trace
      */
     public function __construct(?AbstractReactRenderer $renderer, ?StaticReactRenderer $staticRenderer, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
     {
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
         $this->trace = $trace;
-        $this->buffer = array();
+        $this->buffer = [];
 
         switch ($defaultRendering) {
-            case 'server_side':
+            case self::RENDER_SERVER_ONLY:
                 $this->renderClientSide = false;
                 $this->renderServerSide = true;
                 break;
-            case 'client_side':
+            case self::RENDER_CLIENT_ONLY:
                 $this->renderClientSide = true;
                 $this->renderServerSide = false;
                 break;
-            case 'both':
+            case self::RENDER_CLIENT_AND_SERVER:
                 $this->renderClientSide = true;
                 $this->renderServerSide = true;
                 break;
+            default:
+                throw new \InvalidArgumentException("Invalid render mode: {$defaultRendering}");
         }
 
         // Initialize static renderer
         if (!$staticRenderer) {
-            $staticRenderer = new StaticReactRenderer();
+            $staticRenderer = new StaticReactRenderer($renderer);
         }
 
-        $staticRenderer->setRenderer($renderer);
         $this->staticRenderer = $staticRenderer;
     }
 
@@ -80,40 +85,40 @@ class ReactRenderExtension extends \Twig_Extension
 
     /**
      * @param string $componentName
-     * @param array  $options
-     * @param bool   $bufferData
+     * @param array $options
+     * @param bool $bufferData
      *
      * @return string
      */
-    public function reactRenderComponentArray($componentName, array $options = array(), $bufferData = false)
+    public function reactRenderComponentArray($componentName, array $options = [], $bufferData = false)
     {
-        $props = isset($options['props']) ? $options['props'] : array();
+        $props = isset($options['props']) ? $options['props'] : [];
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
 
         $str = '';
         $data = array(
             'component_name' => $componentName,
             'props' => $propsArray,
-            'dom_id' => 'sfreact-'.uniqid('reactRenderer', true),
+            'dom_id' => 'sfreact-' . uniqid('reactRenderer', true),
             'trace' => $this->shouldTrace($options),
         );
 
 
         if ($this->shouldRenderClientSide($options)) {
             $tmpData = $this->renderContext();
-            $tmpData .=  sprintf(
+            $tmpData .= sprintf(
                 '<script type="application/json" class="js-react-on-rails-component" data-component-name="%s" data-dom-id="%s">%s</script>',
                 $data['component_name'],
                 $data['dom_id'],
                 $this->jsonEncode($data['props'])
             );
-            if($bufferData === true) {
+            if ($bufferData === true) {
                 $this->buffer[] = $tmpData;
             } else {
                 $str .= $tmpData;
             }
         }
-        $str .= '<div id="'.$data['dom_id'].'">';
+        $str .= '<div id="' . $data['dom_id'] . '">';
 
         if ($this->shouldRenderServerSide($options)) {
             $rendered = $this->renderer->render(
@@ -124,10 +129,10 @@ class ReactRenderExtension extends \Twig_Extension
                 $data['trace']
             );
             if ($rendered['hasErrors']) {
-                $str .= $rendered['evaluated'].$rendered['consoleReplay'];
+                $str .= $rendered['evaluated'] . $rendered['consoleReplay'];
             } else {
                 $evaluated = $rendered['evaluated'];
-                $str .= $evaluated['componentHtml'].$rendered['consoleReplay'];
+                $str .= $evaluated['componentHtml'] . $rendered['consoleReplay'];
             }
         }
         $str .= '</div>';
@@ -143,7 +148,7 @@ class ReactRenderExtension extends \Twig_Extension
      *
      * @return string
      */
-    public function reactRenderComponentArrayStatic($componentName, array $options = array())
+    public function reactRenderComponentArrayStatic($componentName, array $options = [])
     {
         $renderer = $this->renderer;
         $this->renderer = $this->staticRenderer;
@@ -156,24 +161,23 @@ class ReactRenderExtension extends \Twig_Extension
 
     /**
      * @param string $componentName
-     * @param array  $options
-     * @param bool   $bufferData
+     * @param array $options
+     * @param bool $bufferData
      *
      * @return string
      */
-    public function reactRenderComponent($componentName, array $options = array(), $bufferData = false)
+    public function reactRenderComponent($componentName, array $options = [], $bufferData = false)
     {
-        $props = isset($options['props']) ? $options['props'] : array();
+        $props = isset($options['props']) ? $options['props'] : [];
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
 
         $str = '';
-        $data = array(
+        $data = [
             'component_name' => $componentName,
             'props' => $propsArray,
-            'dom_id' => 'sfreact-'.uniqid('reactRenderer', true),
+            'dom_id' => 'sfreact-' . uniqid('reactRenderer', true),
             'trace' => $this->shouldTrace($options),
-        );
-
+        ];
 
         if ($this->shouldRenderClientSide($options)) {
             $tmpData = $this->renderContext();
@@ -183,13 +187,15 @@ class ReactRenderExtension extends \Twig_Extension
                 $data['dom_id'],
                 $this->jsonEncode($data['props'])
             );
-            if($bufferData === true) {
+            if ($bufferData === true) {
                 $this->buffer[] = $tmpData;
             } else {
                 $str .= $tmpData;
             }
         }
-        $str .= '<div id="'.$data['dom_id'].'">';
+
+        $str .= '<div id="' . $data['dom_id'] . '">';
+
         if ($this->shouldRenderServerSide($options)) {
             $rendered = $this->renderer->render(
                 $data['component_name'],
@@ -198,19 +204,20 @@ class ReactRenderExtension extends \Twig_Extension
                 $this->registeredStores,
                 $data['trace']
             );
-            $str .= $rendered['evaluated'].$rendered['consoleReplay'];
+            $str .= $rendered['evaluated'] . $rendered['consoleReplay'];
         }
+
         $str .= '</div>';
         return $str;
     }
 
     /**
      * @param string $componentName
-     * @param array  $options
+     * @param array $options
      *
      * @return string
      */
-    public function reactRenderComponentStatic($componentName, array $options = array())
+    public function reactRenderComponentStatic($componentName, array $options = [])
     {
         $renderer = $this->renderer;
         $this->renderer = $this->staticRenderer;
@@ -223,7 +230,7 @@ class ReactRenderExtension extends \Twig_Extension
 
     /**
      * @param string $storeName
-     * @param array  $props
+     * @param array $props
      *
      * @return string
      */
@@ -232,14 +239,13 @@ class ReactRenderExtension extends \Twig_Extension
         $propsString = is_array($props) ? $this->jsonEncode($props) : $props;
         $this->registeredStores[$storeName] = $propsString;
 
-
         $reduxStoreTag = sprintf(
             '<script type="application/json" data-js-react-on-rails-store="%s">%s</script>',
             $storeName,
             $propsString
         );
 
-        return $this->renderContext().$reduxStoreTag;
+        return $this->renderContext() . $reduxStoreTag;
     }
 
     /**
@@ -253,7 +259,7 @@ class ReactRenderExtension extends \Twig_Extension
             $str .= $item;
         }
 
-        $this->buffer = array();
+        $this->buffer = [];
 
         return $str;
     }
