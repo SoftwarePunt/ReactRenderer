@@ -25,12 +25,6 @@
       "Limemius\\ReactRenderer\\Tests\\": "tests/Limenius/ReactRenderer/Tests"
     }
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/SoftwarePunt/phpexecjs.git"
-    }
-  ],
   "require": {
     "php": ">=7.2.0",
     "nacmartin/phpexecjs": "dev-master",
