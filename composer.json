@@ -26,7 +26,7 @@
     }
   },
   "require": {
-    "php": ">=7.2.0",
+    "php": ">=8.0.0",
     "ext-json": "*",
     "nacmartin/phpexecjs": "dev-master",
     "twig/twig": "^1.20|^2.0"
@@ -35,7 +35,7 @@
     "squizlabs/php_codesniffer": "^2.5",
     "escapestudios/symfony2-coding-standard": "^2.9",
     "wimg/php-compatibility": "^7.0",
-    "phpunit/phpunit": "^8.3"
+    "phpunit/phpunit": "^9"
   },
   "scripts": {
     "default-scripts": [
