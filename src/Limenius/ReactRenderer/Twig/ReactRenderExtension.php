@@ -2,8 +2,8 @@
 
 namespace Limenius\ReactRenderer\Twig;
 
-use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
+use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
 use Limenius\ReactRenderer\Renderer\StaticReactRenderer;
 
 /**
@@ -204,7 +204,9 @@ class ReactRenderExtension extends \Twig_Extension
                 $this->registeredStores,
                 $data['trace']
             );
-            $str .= $rendered['evaluated'] . $rendered['consoleReplay'];
+            if ($rendered) {
+                $str .= ($rendered['evaluated'] ?? "") . ($rendered['consoleReplay'] ?? "");
+            }
         }
 
         $str .= '</div>';
