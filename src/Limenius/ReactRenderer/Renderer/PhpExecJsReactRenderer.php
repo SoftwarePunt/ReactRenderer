@@ -2,10 +2,10 @@
 
 namespace Limenius\ReactRenderer\Renderer;
 
-use Nacmartin\PhpExecJs\PhpExecJs;
-use Psr\Log\LoggerInterface;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
+use Nacmartin\PhpExecJs\PhpExecJs;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class PhpExecJsReactRenderer
@@ -91,7 +91,7 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      *
      * @return array
      */
-    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
+    public function render($componentName, $propsString, $uuid, $registeredStores = [], bool $trace = false)
     {
         $this->ensurePhpExecJsIsBuilt();
         if ($this->needToSetContext) {

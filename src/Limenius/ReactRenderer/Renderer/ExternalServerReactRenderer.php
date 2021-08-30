@@ -53,7 +53,7 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
      *
      * @return array
      */
-    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
+    public function render($componentName, $propsString, $uuid, $registeredStores = [], bool $trace = false)
     {
         if (strpos($this->serverSocketPath, '://') === false) {
             $this->serverSocketPath = 'unix://'.$this->serverSocketPath;

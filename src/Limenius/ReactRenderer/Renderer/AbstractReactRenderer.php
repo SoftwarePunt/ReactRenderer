@@ -2,9 +2,9 @@
 
 namespace Limenius\ReactRenderer\Renderer;
 
+use Limenius\ReactRenderer\Context\ContextProviderInterface;
 use Limenius\ReactRenderer\Exception\EvalJsException;
 use Psr\Log\LoggerInterface;
-use Limenius\ReactRenderer\Context\ContextProviderInterface;
 
 /**
  * Class AbstractReactRenderer
@@ -30,7 +30,7 @@ abstract class AbstractReactRenderer
      *
      * @return array
      */
-    abstract public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace);
+    abstract public function render($componentName, $propsString, $uuid, array $registeredStores = [], bool $trace = false);
 
     /**
      * @return string
@@ -88,7 +88,7 @@ JS;
      *
      * @return string
      */
-    protected function wrap($name, $propsString, $uuid, $registeredStores = array(), $trace)
+    protected function wrap($name, $propsString, $uuid, $registeredStores = [], bool $trace = false)
     {
         $traceStr = $trace ? 'true' : 'false';
         $context = json_encode($this->contextProvider->getContext(true));
